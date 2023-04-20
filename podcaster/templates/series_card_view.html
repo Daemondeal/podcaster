@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="cards-section">
+    <h2 class="mb-2">{{ title }}</h2>
+    <div class="cards-container">
+        {% for series in series_list %}
+        {% include "series_card.html" %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

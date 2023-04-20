@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-create-episode">
+    <h2 class="mb-4">Nuovo Episodio</h2>
+    <form class="row g-3 needs-validation" action="{{ url_for('route_new_episode', seriesid=series.PodcastSeriesID) }}"
+        novalidate method="POST" enctype="multipart/form-data">
+        <div class="col-lg-7 mb-3">
+            <label for="titleInput" class="form-label">Titolo</label>
+            <input type="text" name="title" class="form-control" id="titleInput" pattern=".*\S.*" minlength="1"
+                maxlength="100" required>
+            <div class="invalid-feedback">Inserire un Titolo</div>
+        </div>
+        <div class="col-lg-5 mb-3">
+            <label for="trackInput" class="form-label form-label-info">
+                Traccia dell'Episodio
+                <span data-bs-toggle="tooltip" data-bs-title="Formati supportati: mp3, ogg, wav.">{{
+                    render_icon('info-circle') }}</span>
+            </label>
+            <input class="form-control" name="track" type="file" id="trackInput" accept="{{ accepted_formats }}"
+                required>
+            <div class="invalid-feedback">Inserire una Traccia per l'Episodio</div>
+        </div>
+        <div class="mb-3">
+            <label for="dateInput" class="form-label form-label-info">
+                Data di Pubblicazione
+                <span data-bs-toggle="tooltip"
+                    data-bs-title="Inserire una data futura nasconderà l'episodio a tutti gli altri utenti tranne te fino all'arrivo di quella data.">
+                    {{ render_icon('info-circle') }}
+                </span>
+            </label>
+            <input class="form-control" name="date" type="date" id="dateInput" value="{{ current_day }}" required>
+            <div class="invalid-feedback">Inserire una Data di Pubblicazione</div>
+        </div>
+        <div class="mb-3">
+            <label for="descriptionInput" class="form-label">Descrizione</label>
+            <textarea name="description" rows="9" class="form-control" id="descriptionInput" required minlength="1"
+                maxlength="1000" pattern=".*\S.*"></textarea>
+            <div class="invalid-feedback">Inserire una Descrizione</div>
+
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary btn-long">Crea Episodio</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

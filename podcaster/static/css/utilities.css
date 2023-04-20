@@ -1,0 +1,94 @@
+.btn-delete-episode {
+    --bs-btn-padding-x: 0.75rem;
+    --bs-btn-padding-y: 0.3125rem;
+}
+
+
+@media screen and (max-width: 992px) {
+    .hide-below-lg {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .hide-below-sm {
+        display: none;
+    }
+}
+
+.mb-auto {
+    margin-bottom: auto;
+}
+
+.highlight-link {
+    color: #FFF;
+    text-decoration: none;
+}
+
+.highlight-link:hover {
+    background-color: #474747;
+    color: #FFF;
+    border-radius: 0.5rem;
+}
+
+.text-overflowing {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.link-none {
+    color: #FFF;
+    text-decoration: none;
+}
+
+.link-none:hover {
+    color: #FFF;
+    text-decoration: underline;
+}
+
+.w-90 {
+    width: 90% !important;
+}
+
+.w-70 {
+    width: 70% !important;
+}
+
+.delete-button {
+    cursor: pointer;
+}
+
+
+.form-image-container {
+    display: flex;
+}
+
+.form-create-episode {
+    max-width: 50rem;
+}
+
+.form-create-series {
+    max-width: 70rem;
+}
+
+
+.btn-long {
+    width: 10rem;
+}
+
+@media screen and (min-width: 992px) {
+    .form-image-container {
+        justify-content: end;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .form-image-container {
+        justify-content: center;
+    }
+}
+
+.big-error-code {
+    font-size: 20rem;
+}

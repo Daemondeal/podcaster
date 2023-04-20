@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ user.Name }}
+{% endblock%}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="align-self-center series-container-size">
+    <section class="d-lg-flex">
+        <img src="{{ url_for('route_user_image', filename=user.ProfileImageFilename) }}" class="user-image me-4"
+            alt="{{ user.Name }}">
+
+        <div class="series-info">
+            <h2>
+                {{ user.Name }}
+            </h2>
+            <p class="text-muted">
+                {% if user.UserType == "Creator" %}
+                Creatore
+                {% else %}
+                Ascoltatore
+                {% endif%}
+            </p>
+            <p class=" me-2">
+                {{ user.Email }}
+            </p>
+        </div>
+    </section>
+
+    {% if series_created and series_created | length > 0 %}
+    <section class="mt-2">
+        <h2>Serie Create</h2>
+        <div class="cards-container">
+            {% for series in series_created %}
+            {% include "series_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if series_followed and series_followed | length > 0 %}
+    <section class="mt-2">
+        <h2>Serie Seguite</h2>
+        <div class="cards-container">
+            {% for series in series_followed %}
+            {% include "series_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

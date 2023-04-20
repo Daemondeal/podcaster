@@ -1,0 +1,12 @@
+.placeholder-image {
+    text-anchor: middle;
+    user-select: none;
+}
+
+.form-signup {
+    max-width: 40rem;
+}
+
+.btn-subscribe {
+    width: 10rem;
+}

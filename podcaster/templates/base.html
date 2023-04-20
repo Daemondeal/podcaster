@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+
+{% from 'bootstrap5/utils.html' import render_icon %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="keywords" content="podcast, audio">
+    <meta name="description" content="Podcaster è un servizio che fornisce accesso a migliaia di podcast italiani.">
+
+    <title>{% block title %}Podcaster{% endblock %}</title>
+
+    <script src="{{ url_for('static', filename='js/tooltips.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/validation.js') }}" defer></script>
+
+    {{ bootstrap.load_css(version="5.2.3") }}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theming.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/series_episodes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    {% block header %}
+    {% endblock %}
+</head>
+
+<body class="text-bg-dark">
+    {% if not current_user.is_authenticated %}
+    {# Login Modal #}
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content text-bg-dark">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="loginModalLabel">Accedi</h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('route_login') }}" method="POST" class="needs-validation" novalidate>
+                    <div class="modal-body">
+                        {# Usato per tornare indietro alla pagina da cui si è fatto il login #}
+                        <input type="hidden" value="{{ request.path }}" name="redirect-back">
+                        <div class="mb-3">
+                            <label for="emailInput" class="form-label">Indirizzo Email</label>
+                            <input type="email" class="form-control" name="email" id="emailInput"
+                                placeholder="name@example.com" minlength="3" maxlength="255" required>
+                            <div class="invalid-feedback">
+                                Email Invalida
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="passwordInput" minlength="6"
+                                maxlength="255" required>
+                            <div class="invalid-feedback">
+                                Password Invalida
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="true" name="remember-me"
+                                id="rememberMeInput" checked>
+                            <label class="form-check-label" for="rememberMeInput">
+                                Ricordami
+                            </label>
+                        </div>
+                        <p class="text-muted mt-3">
+                            Non hai un account? <a href="{{ url_for('route_signup') }}"
+                                class="text-decoration-none">Registrati</a>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        <button type="submit" class="btn btn-primary">Accedi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <header class="navbar sticky-top text-bg-dark">
+        {# Bottone Responsive per la sidebar #}
+        <button class="btn btn-link d-lg-none" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+            {{ render_icon("list", size="32px") }}
+        </button>
+
+        {# Titolo #}
+        <h1 class="ms-3 hide-below-lg">
+            <a href="{{ url_for('route_homepage') }}">
+                Podcaster
+            </a>
+        </h1>
+
+        {# Comandi Utente #}
+        {% if current_user.is_authenticated %}
+        <div class="me-3 d-flex flex-row justify-content-center">
+            {% if current_user.is_creator() %}
+            <a class="create-series-link highlight-link" href="{{ url_for('route_new_series_view') }}"
+                data-bs-toggle="tooltip" data-bs-title="Crea Nuova Serie">
+                +
+            </a>
+            {% endif %}
+            <div class="dropdown profile-dropdown">
+                <a class="profile-link highlight-link me-1" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    {{ current_user.name }}
+                    <img class="profile-picture me-1 mb-1"
+                        src="{{ url_for('route_user_image', filename=current_user.image_filename) }}"
+                        alt="Immagine Profilo di {{ current_user.name }}">
+                    {{ render_icon("caret-down-fill") }}
+
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="{{ url_for('route_user', userid=current_user.id) }}">
+                            Mostra Profilo
+                        </a>
+                    </li>
+                    <li>
+                        <form action="{{ url_for('route_logout') }}" method="POST">
+                            <!-- Usato per tornare indietro alla pagina da cui si è fatto il logout -->
+                            <input type="hidden" value="{{ request.path }}" name="redirect-back">
+                            <button class="btn-link dropdown-item" type="submit">
+                                Esci
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% else %}
+        <div class="me-3">
+            <a href="{{ url_for('route_signup') }}" class="btn btn-primary me-2">Registrati</a>
+            <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#loginModal">Accedi</a>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="text-bg-dark main-container">
+        <aside id="offcanvasSidebar" class="offcanvas-lg text-bg-dark offcanvas-start">
+            <div class="offcanvas-header border-bottom mb-4 pt-0">
+                <h1 class="offcanvas-title">
+                    <a href="{{ url_for('route_homepage') }}">
+                        Podcaster
+                    </a>
+                </h1>
+                <button class="btn-close btn-close-white" type="button" data-bs-dismiss="offcanvas" aria-label="Chiudi"
+                    data-bs-target="#offcanvasSidebar"></button>
+            </div>
+            {% if current_user.is_authenticated and followed_series | length > 0 %}
+            <nav>
+                <h2 class="mt-2 ms-3">Serie Seguite</h2>
+                <ul class="list-unstyled navbar-list ms-3">
+                    {% for series in followed_series %}
+                    <li>
+                        <a class="sidebar-link text-overflowing highlight-link"
+                            href="{{ url_for('route_series', seriesid=series.PodcastSeriesID) }}">
+                            <img class="sidebar-series-picture me-2"
+                                src="{{ url_for('route_series_image', filename=series.ImageFilename) }}"
+                                alt="Immagine per la serie {{ series.Title }}">
+                            {{ series.Title }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+            <hr>
+            {% endif %}
+            <nav>
+                <h2 class="ms-3">Esplora Categorie</h2>
+                <ul class="list-unstyled navbar-list ms-3">
+                    {% for category in categories %}
+                    <li>
+                        <a class="sidebar-link text-overflowing highlight-link"
+                            href="{{ url_for('route_series_by_category', category=category.Category) }}">
+                            {{ category.Category }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <article class="alert alert-{{ category }} alert-dismissible fade show w-100" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+            </article>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {# Contenuto Principale #}
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    {{ bootstrap.load_js(version="5.2.3") }}
+</body>
+
+</html>

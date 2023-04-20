@@ -1,0 +1,44 @@
+<article class="card text-bg-dark card-series card-border">
+    <a href="{{ url_for('route_series', seriesid=series.PodcastSeriesID) }}">
+        <div class="card-img-top d-flex align-items-center justify-content-center mt-3">
+            <img src="{{ url_for('route_series_image', filename=series.ImageFilename) }}" class="card-series-image"
+                alt="{{ series.Title }}">
+        </div>
+    </a>
+    <div class="card-body">
+        <div>
+            <h5 class="card-title">
+                <a href="{{ url_for('route_series', seriesid=series.PodcastSeriesID) }}" class="link-none text-bold">
+                    {{ series.Title|truncate(60) }}
+                </a>
+            </h5>
+            <a class="text-muted mt-1 text-decoration-none tag-link"
+                href="{{ url_for('route_series_by_category', category=series.Category) }}">
+                {{ render_icon("tag") }} {{ series.Category }}
+            </a>
+            <p class="card-text card-description">
+                {{ series.Description|truncate(220) }}
+            </p>
+        </div>
+        <div class="mt-2">
+            <div class="card-profile-box">
+                <a href="{{ url_for('route_user', userid=series.Author_UserID) }}"
+                    class="d-flex card-profile-link highlight-link" aria-label="Creato da {{ series.AuthorName }}">
+                    <img class="profile-picture me-1"
+                        src="{{ url_for('route_user_image', filename=series.AuthorImage)}}"
+                        alt="Immagine Profilo di {{ series.AuthorName }}">
+                    <span class="card-profile-name-text text-overflowing">{{ series.AuthorName }}</span>
+                </a>
+                <em class="text-muted">
+                    {% if series.EpisodeCount == 0 %}
+                    Nessun episodio
+                    {% elif series.EpisodeCount == 1 %}
+                    Un episodio
+                    {% else %}
+                    {{ series.EpisodeCount }} episodi
+                    {% endif %}
+                </em>
+            </div>
+        </div>
+    </div>
+</article>

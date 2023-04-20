@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block header %}
+<script src="{{ url_for('static', filename='js/imagePreview.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="form-signup">
+    <form class="row g-3 mt-3 needs-validation" action="{{ url_for('route_signup') }}" novalidate method="POST"
+        enctype="multipart/form-data">
+        <h2>Registrati</h2>
+        <div class="col-lg-6 d-flex flex-column justify-content-end">
+            <div class="mb-3">
+                <label for="nameInput" class="form-label">Nome</label>
+                <input type="text" name="name" class="form-control" required minlength="1" maxlength="50" id="nameInput"
+                    pattern=".*\S.*">
+                <div class="invalid-feedback">Inserire un Nome</div>
+            </div>
+            <div>
+                <label for="imagePreviewSource" class="form-label form-label-info">
+                    Immagine Profilo
+                    <span data-bs-toggle="tooltip" data-bs-title="Formati supportati: jpeg, png, gif, webp.">
+                        {{ render_icon('info-circle') }}
+                    </span>
+                </label>
+                <input class="form-control align-self-end" name="image" type="file" id="imagePreviewSource"
+                    accept="{{ accepted_formats }}" required>
+                <div class="invalid-feedback">Inserire un'Immagine Profilo</div>
+            </div>
+        </div>
+        <div class="col-lg-6 form-image-container">
+            {# "data:," indica un immagine vuota, necessario per essere compliant con la spec #}
+            <img class="user-image d-none" alt="Anteprima Immagine Profilo" id="imagePreviewTarget" src="data:,">
+            <svg class="user-image placeholder-image" id="imagePlaceholder" xmlns="http://www.w3.org/2000/svg"
+                role="img" preserveAspectRatio="xMidYMid slice">
+                <title>Placeholder</title>
+                <rect width="100%" height="100%" fill="#868e96"></rect>
+                <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Immagine Profilo</text>
+            </svg>
+        </div>
+
+        <div class="col-lg-6">
+            <label for="signupEmailInput" class="form-label">Indirizzo Email</label>
+            <input type="email" name="email" class="form-control" id="signupEmailInput" required minlength="1"
+                maxlength="255" pattern=".*\S.*">
+            <div class="invalid-feedback">Email Invalida</div>
+        </div>
+        <div class="col-lg-6">
+            <label for="signupPasswordInput" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="signupPasswordInput" required
+                pattern=".*\S.*" minlength="6" maxlength="255">
+            <div class="invalid-feedback">Inserire una password di almeno 6 caratteri</div>
+        </div>
+        <div class="col-lg-6">
+            <label for="typeInput" class="form-label">Tipo Utente</label>
+            <select class="form-select" name="usertype" id="typeInput" required>
+                <option selected disabled value="">Seleziona</option>
+                <option value="Creator">Creatore</option>
+                <option value="Listener">Ascoltatore</option>
+            </select>
+            <div class="invalid-feedback">Scegli un'opzione</div>
+        </div>
+        <div class="col-lg-6 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-subscribe">Iscriviti</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

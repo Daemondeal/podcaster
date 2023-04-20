@@ -1,0 +1,54 @@
+.cards-section {
+    width: 90%;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card-description {
+    font-size: 0.90rem;
+}
+
+.cards-container>article {
+    width: 20rem;
+}
+
+.card-series-image {
+    width: 90%;
+}
+
+.card-profile-link {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-right: 0.75rem;
+    padding-left: 0.5rem;
+}
+
+.card-series {
+    height: 36rem;
+    margin-right: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-border {
+    box-shadow: 4px 4px 10px rgba(255, 255, 255, 0.04);
+    border-radius: 1rem;
+}
+
+.card-profile-name-text {
+    width: 6em;
+}
+
+.card-profile-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

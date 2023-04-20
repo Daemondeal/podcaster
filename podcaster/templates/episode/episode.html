@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block header %}
+<script defer src="{{ url_for('static', filename='js/editComment.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/fileReplacer.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/resetFormOnModalClose.js') }}"></script>
+
+{% endblock %}
+
+{% block title %}
+{{ episode.Title }}
+{% endblock%}
+
+{% block content %}
+{# Modifica Episodio #}
+{% if current_user.is_authenticated and series.Author_UserID == current_user.id %}
+<div class="modal modal-lg fade" id="editEpisodeModal" tabindex="-1" aria-labelledby="editEpisodeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editEpisodeModalLabel">Modifica Episodio</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form
+                action="{{ url_for('route_edit_episode', seriesid=series.PodcastSeriesID, episodeid=episode.PodcastEpisodeID) }}"
+                novalidate class="needs-validation" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="titleInput" class="form-label">Titolo</label>
+                        <input type="text" class="form-control" name="title" id="titleInput" value="{{ episode.Title }}"
+                            required minlength="1" pattern=".*\S.*" maxlength="100">
+                        <div class="invalid-feedback">Inserire un Titolo</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateInput" class="form-label form-label-info">
+                            Data di Pubblicazione
+                            <span data-bs-toggle="tooltip"
+                                data-bs-title="Inserire una data futura nasconderà l'episodio a tutti gli altri utenti tranne te fino all'arrivo di quella data.">
+                                {{ render_icon('info-circle') }}
+                            </span>
+                        </label>
+                        <input class="form-control" name="date" type="date" id="dateInput"
+                            value="{{ episode.DateInserted.date() }}" required>
+                        <div class="invalid-feedback">Inserire una Data di Pubblicazione.</div>
+                    </div>
+                    <div class="mb-3 file-replacer">
+                        <div class="d-none file-replacer-input-container">
+                            <label for="trackInput" class="form-label form-label-info">
+                                Traccia dell'Episodio
+                                <span data-bs-toggle="tooltip" data-bs-title="Formati supportati: mp3, ogg, wav.">{{
+                                    render_icon('info-circle') }}</span>
+                            </label>
+                            <input class="form-control" name="track" type="file" id="trackInput"
+                                accept="{{ accepted_formats }}">
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center file-replacer-previous-file">
+                            <span>Traccia Audio: {{ episode.TrackFilename }}</span>
+                            <span class="delete-button file-replacer-delete-button">
+                                {{ render_icon('x', size='24pt')}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descriptionInput" class="form-label">Descrizione</label>
+                        <textarea class="form-control" name="description" rows="9" id="descriptionInput" required
+                            minlength="1" pattern=".*\S.*" maxlength="1000">{{ episode.Description }}</textarea>
+                        <div class="invalid-feedback">Inserire una Descrizione</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Cambiamenti</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{# Elimina Episodio #}
+<div class="modal fade" id="deleteEpisodeModal" tabindex="-1" aria-labelledby="deleteEpisodeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteEpisodeModalLabel">Sei sicuro?</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Sei sicuro di voler eliminare l'episodio? Questa decisione è irreversibile.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form
+                    action="{{ url_for('route_delete_episode', seriesid=series.PodcastSeriesID, episodeid=episode.PodcastEpisodeID) }}"
+                    method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip"
+                        data-bs-title="Elimina Episodio">Elimina Episodio</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+<div>
+    <div class="series-container series-container-size episode-border">
+        <div class="podcast-episode-image-container">
+            <img src="{{ url_for('route_series_image', filename=series.ImageFilename) }}" class="podcast-episode-image"
+                alt="{{ series.Title }}">
+            {% if current_user.is_authenticated and series.Author_UserID == current_user.id %}
+            <div class="mt-4 d-flex justify-content-center">
+                <a href="#" class="btn btn-primary me-2" data-bs-toggle="modal"
+                    data-bs-target="#editEpisodeModal">Modifica Episodio</a>
+                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEpisodeModal">Elimina
+                    Episodio</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="me-4 series-info-container">
+            <div class="d-flex justify-content-between">
+                <h2 class="d-inline episode-title mb-0">{{ episode.Title }}</h2>
+                <time class="text-muted mt-1" datetime="{{ episode.DateInserted.date().isoformat() }}"
+                    data-bs-toggle="tooltip" data-bs-title="{{ episode.DateInserted.date().isoformat() }}">
+                    {{ episode.DateInserted | format_past_date }}
+                </time>
+            </div>
+            <a class="text-muted text-decoration-none mt-1 tag-link"
+                href="{{ url_for('route_series', seriesid=series.PodcastSeriesID) }}">
+                {% if is_current_user_following_series %}
+                {{ render_icon("bookmark-heart")}}
+                {% else %}
+                {{ render_icon("bookmark")}}
+                {% endif %}
+                {{ series.Title }}
+            </a>
+
+            {% if current_user.is_authenticated %}
+            <audio controls class="mt-4">
+                <source src="{{ url_for('route_track', filename=episode.TrackFilename) }}">
+            </audio>
+            {% else %}
+            <p class="mt-4 register-prompt">
+                <a href="{{ url_for('route_signup') }}">Registrati per ascoltare</a>
+            </p>
+            {% endif %}
+
+            <p class="series-description mt-4">
+                {{ episode.Description }}
+            </p>
+        </div>
+    </div>
+    <section>
+        <h3 class="mt-3 d-block">Commenti</h3>
+        <div class="mt-4">
+            {% if current_user.is_authenticated %}
+            <form method="POST"
+                action="{{ url_for('route_new_comment', episodeid=episode.PodcastEpisodeID, seriesid=series.PodcastSeriesID) }}"
+                class="mb-5 needs-validation" novalidate>
+                <div class="mb-3">
+                    <textarea name="comment" class="form-control" rows="3" id="commentInput" minlength="1"
+                        maxlength="1000" required pattern=".*\S.*"></textarea>
+                    <div class="invalid-feedback">Il commento non può essere vuoto</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Commenta</button>
+            </form>
+            {% elif comments | length == 0 %}
+            <p class="text-muted">
+                Nessun commento... <a class="text-decoration-none" href="{{ url_for('route_signup') }}">Registrati</a> o
+                <a class="text-decoration-none" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Accedi</a>
+                per essere il primo a commentare!</a>
+            </p>
+            {% endif %}
+
+
+            {% for comment in comments %}
+            <article class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a href="{{ url_for('route_user', userid=comment.Author_UserID) }}"
+                            class="comment-profile-link highlight-link" aria-label="Creato da {{ series.AuthorName }}">
+                            <img class="profile-picture me-1"
+                                src="{{ url_for('route_user_image', filename=comment.AuthorImage)}}"
+                                alt="Immagine Profilo per {{ comment.AuthorName }}">
+                            {{ comment.AuthorName }}
+                        </a>
+                        <time class="text-muted" datetime="{{ comment.DateInserted.date().isoformat() }}"
+                            data-bs-toggle="tooltip" data-bs-title="{{ comment.DateInserted.date().isoformat() }}">
+                            {{ comment.DateInserted | format_past_datetime}}
+                        </time>
+                    </div>
+
+                    {% if current_user.is_authenticated and comment.Author_UserID == current_user.id %}
+                    <div class="dropdown">
+                        <button class="btn btn-link" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ render_icon('three-dots-vertical', size="24px") }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            <li>
+                                <button type="button" class="btn btn-link dropdown-item edit-button"
+                                    data-comment-id="{{ comment.CommentID }}"
+                                    data-comment-edit-url="{{ url_for('route_edit_comment', seriesid=series.PodcastSeriesID, episodeid=episode.PodcastEpisodeID) }}">
+                                    Modifica
+                                </button>
+                            </li>
+                            <li>
+                                <form
+                                    action="{{ url_for('route_delete_comment', seriesid=series.PodcastSeriesID, episodeid=episode.PodcastEpisodeID) }}"
+                                    method="POST">
+                                    <input type="hidden" name="commentid" value="{{ comment.CommentID }}">
+                                    <button type="submit" class="btn btn-link dropdown-item">
+                                        Elimina
+                                    </button>
+                                </form>
+                            </li>
+
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                </div>
+                <p class="mt-2" id="comment-{{ comment.CommentID }}">
+                    {{ comment.Content }}
+                </p>
+            </article>
+            {% endfor %}
+
+        </div>
+    </section>
+</div>
+{% endblock %}

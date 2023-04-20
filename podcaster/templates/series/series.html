@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block header %}
+<script defer src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/fileReplacer.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/resetFormOnModalClose.js') }}"></script>
+{% endblock %}
+
+{% block title %}
+{{ series.Title }}
+{% endblock%}
+
+{% block content %}
+{# Modifica Serie #}
+{% if current_user.is_authenticated and series.Author_UserID == current_user.id %}
+<div class="modal modal-lg fade" id="editSeriesModal" tabindex="-1" aria-labelledby="editSeriesModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editSeriesModalLabel">Modifica Serie</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('route_edit_series', seriesid=series.PodcastSeriesID) }}" class="needs-validation"
+                novalidate method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="titleInput" class="form-label">Titolo</label>
+                        <input type="text" class="form-control" name="title" id="titleInput" value="{{ series.Title }}"
+                            required minlength="1" maxlength="100" pattern=".*\S.*">
+                        <div class="invalid-feedback">Inserire un Titolo</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryInput" class="form-label">Categoria</label>
+                        <input type="text" class="form-control" name="category" id="categoryInput"
+                            value="{{ series.Category }}" required minlength="1" maxlength="50" pattern=".*\S.*">
+                        <div class="invalid-feedback">Inserire una Categoria</div>
+                    </div>
+                    <div class="mb-3 file-replacer">
+                        <div class="d-none file-replacer-input-container">
+                            <label for="imageInput" class="form-label form-label-info">
+                                Immagine Serie
+                                <span data-bs-toggle="tooltip"
+                                    data-bs-title="Formati supportati: jpeg, png, gif, webp.">
+                                    {{ render_icon('info-circle') }}
+                                </span>
+                            </label>
+                            <input class="form-control" name="image" type="file" id="imageInput"
+                                accept="{{ accepted_formats }}">
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center file-replacer-previous-file">
+                            <span>File Immagine: {{ series.ImageFilename }}</span>
+                            <span class="delete-button file-replacer-delete-button">
+                                {{ render_icon('x', size='24pt')}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descriptionInput" class="form-label">Descrizione</label>
+                        <textarea class="form-control" name="description" rows="9" id="descriptionInput" required
+                            minlength="1" pattern=".*\S.*" maxlength="1000">{{ series.Description }}</textarea>
+                        <div class="invalid-feedback">Inserire una Descrizione</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Cambiamenti</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{# Elimina Serie #}
+<div class="modal fade" id="deleteSeriesModal" tabindex="-1" aria-labelledby="deleteSeriesModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content text-bg-dark">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteSeriesModalLabel">Sei sicuro?</h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Sei sicuro di voler eliminare la serie? Questa decisione è irreversibile.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form action="{{ url_for('route_delete_series') }}" method="POST">
+                    <input type="hidden" name="seriesid" value="{{ series.PodcastSeriesID }}">
+                    <button class="btn btn-danger" type="submit">Elimina Serie</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="episode-list-container">
+    <div class="series-container series-container-size">
+        <img src="{{ url_for('route_series_image', filename=series.ImageFilename) }}" class="podcast-series-image"
+            alt="{{ series.Title }}">
+
+        <div class="series-info-container">
+            <h2 class="mb-0">
+                {{ series.Title }}
+            </h2>
+            <div class="d-lg-flex justify-content-between">
+                <div class="mb-2 series-name-category-container">
+                    <a class="me-2 h-50 text-muted text-decoration-none"
+                        href="{{ url_for('route_user', userid=series.Author_UserID) }}">
+                        {{ render_icon("person") }} {{ series.AuthorName }}
+                    </a>
+                    <a class="text-muted h-50 text-decoration-none"
+                        href="{{ url_for('route_series_by_category', category=series.Category) }}">
+                        {{ render_icon("tag") }} {{ series.Category }}
+                    </a>
+                </div>
+                {% if current_user.is_authenticated %}
+                <div class="mb-4">
+                    {% if is_current_user_following_series %}
+                    <form class="d-inline"
+                        action="{{ url_for('route_series_unfollow', seriesid=series.PodcastSeriesID) }}" method="POST">
+                        <button type="submit" class="btn btn-secondary btn-follow">Smetti di Seguire</button>
+                    </form>
+                    {% else %}
+                    <form class="d-inline"
+                        action="{{ url_for('route_series_follow', seriesid=series.PodcastSeriesID) }}" method="POST">
+                        <button type="submit" class="btn btn-primary btn-follow">Segui</button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+            </div>
+            <p class="series-description">
+                {{ series.Description }}
+            </p>
+        </div>
+    </div>
+
+    <section>
+        <h3>Episodi</h3>
+        <div class="input-group mb-3 mt-3">
+            <input type="text" class="form-control" placeholder="Cerca Episodio" aria-label="Cerca Episodio"
+                id="searchInput">
+            <span class="input-group-text">{{ render_icon('search') }}</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover table-episodes w-100">
+                <thead>
+                    <tr>
+                        <th scope="col">Titolo</th>
+                        <th scope="col">Durata</th>
+                        <th scope="col" class="hide-below-sm">Data</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for episode in episodes %}
+
+                    <tr data-search-content="{{ episode.Title }} {{ episode.Description }}">
+                        <td class="list-episode">
+                            <a class="text-decoration-none"
+                                href="{{ url_for('route_episode', episodeid=episode.PodcastEpisodeID, seriesid=episode.Series_PodcastSeriesID) }}">
+                                <span class="play-empty">
+                                    {{ render_icon("play", size="30px") }}
+                                </span>
+                                <span class="play-fill">
+                                    {{ render_icon("play-fill", size="30px") }}
+                                </span>
+                            </a>
+                            <a class="link-episode text-overflowing"
+                                href="{{ url_for('route_episode', episodeid=episode.PodcastEpisodeID, seriesid=episode.Series_PodcastSeriesID) }}">
+                                {{ episode.Title }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ episode.TrackDuration | format_duration }}
+                        </td>
+                        <td class="hide-below-sm">
+                            {{ episode.DateInserted.date().isoformat() }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if current_user.is_authenticated and current_user.id == series.Author_UserID %}
+        <div class="d-flex justify-content-end">
+            <a href="{{ url_for('route_new_episode_view', seriesid=series.PodcastSeriesID) }}"
+                class="btn btn-primary me-3">
+                Aggiungi Episodio
+            </a>
+            <a href="#" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#editSeriesModal">
+                Modifica Serie
+            </a>
+            <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteSeriesModal">
+                Elimina Serie
+            </a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}
